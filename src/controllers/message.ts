@@ -65,6 +65,34 @@ export const createMessageController = () => {
   );
 
   app.post(
+    "/send-buildinfo",
+    createKeyMiddleware(),
+    customValidator("json", sendMessageSchema),
+    async (c) => {
+      const payload = c.req.valid("json");
+      const isExist = whatsapp.getSession(payload.session);
+      if (!isExist) {
+        throw new HTTPException(400, {
+          message: "Session does not exist",
+        });
+      }
+
+      const msgBuildInfo = payload.text.toLowerCase().match(/build\s+failed/) ? 
+      `|| !! Deploy Failed !! || \n Context: ${payload.text}` : `|| Deploy Success || \n Info: ${payload.text}`;
+
+      const response = await whatsapp.sendTextMessage({
+        sessionId: payload.session,
+        to: payload.to,
+        text: msgBuildInfo,
+      });
+
+      return c.json({
+        data: response,
+      });
+    }
+  );
+
+  app.post(
     "/send-image",
     createKeyMiddleware(),
     customValidator(

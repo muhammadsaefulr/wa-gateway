@@ -7,7 +7,7 @@ export const env = z
     KEY: z.string().default(""),
     PORT: z
       .string()
-      .default("5001")
+      .default("5080")
       .transform((e) => Number(e)),
   })
   .parse(process.env);
